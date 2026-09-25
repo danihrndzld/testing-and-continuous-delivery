@@ -8,7 +8,15 @@ Reference content in `references/` is in Spanish.
 
 ## Install
 
-Personal (all projects):
+With [`skills`](https://github.com/vercel-labs/skills) (Claude Code, Cursor, Codex and others):
+
+```bash
+npx skills add danihrndzld/testing-and-continuous-delivery --global
+```
+
+Drop `--global` to install it only in the current project.
+
+Or with git, personal (all projects):
 
 ```bash
 git clone https://github.com/danihrndzld/testing-and-continuous-delivery ~/.claude/skills/testing-and-continuous-delivery
