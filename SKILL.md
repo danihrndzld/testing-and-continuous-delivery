@@ -1,11 +1,22 @@
 ---
 name: testing-and-continuous-delivery
-description: Use when designing test cases or a test strategy, picking a test level or type, applying ISTQB terms (error/defect/failure, equivalence partitioning, boundary values, decision tables, state transitions, statement/branch coverage), planning smoke/sanity/regression runs, judging flaky tests or suite speed, or working on CI/CD pipelines, quality gates, DORA metrics, deployment strategies, trunk-based development, or linting policy. Reference content is in Spanish.
+description: Use when designing test cases or a test strategy, picking a test level or type, applying ISTQB terms (error/defect/failure, equivalence partitioning, boundary values, decision tables, state transitions, statement/branch coverage), planning smoke/sanity/regression runs, judging flaky tests or suite speed, or working on CI/CD pipelines, quality gates, DORA metrics, deployment strategies, trunk-based development, or linting policy. Whenever it is applied to concrete code, a feature or a spec, it always delivers two things: the implemented and executed tests, and a PDF test report (HTML + Chrome, no LaTeX) that justifies each technique with ISTQB citations. Reference content is in Spanish.
 ---
 
 # Testing and Continuous Delivery
 
 Reference base covering ISTQB testing theory and continuous delivery practice, from *why* a test exists to *how* a pipeline ships it. Reference files are in Spanish.
+
+## Mandatory output
+
+When the skill is applied to a concrete scenario (code, function, endpoint, user story, spec), the deliverable is **always both**:
+
+1. **Implemented tests, executed**, in the project's own framework. Every test carries a technique ID (`EP-01`, `BVA-03`, `DT-R2`, `ST-T4`…) in its name.
+2. **A PDF report** at `reportes-pruebas/YYYY-MM-DD-<object>/reporte.{html,pdf}`: why each technique was chosen for *this* scenario, the derivation tables, traceability ID → `file:line`, the literal runner output, coverage, defects and residual risk, citing ISTQB CTFL v4.0.1 by section and the et al. sources.
+
+Steps: read `references/reporte-contenido.md` (workflow, selection matrix, mandatory sections, verified citations) → write and run the tests → copy the skeleton from `references/reporte-diseno.md` into `reporte.html` and fill it → `bash scripts/html_a_pdf.sh <path>/reporte.html` → check `pdfinfo` and look at the cover, one table and one box. Failing tests that expose a defect stay failing and go in the report's defects section.
+
+Pure concept questions (no scenario) get a direct answer from the references below.
 
 **Core principle:** testing shows the presence of defects, never their absence — so every technique here is about *choosing* which few tests to write, and about making the signal they produce trustworthy and fast.
 
@@ -23,6 +34,8 @@ Load only the file you need.
 | Single source of truth, config as code, secrets, trunk-based development, SLSA, SemVer and pinning, DORA metrics, code freeze, rollback, blue-green and canary | `references/entrega-continua.md` |
 | Universal task list, greenfield vs legacy starter packs, task boundaries, when bash falls short, errors/speed/signal triage, `finally`, sharding, parameterized pipelines | `references/diseno-de-pipelines.md` |
 | Sources for any claim above | `references/bibliografia.md` |
+| Report workflow, technique-selection matrix with verified CTFL v4.0.1 sections, mandatory report sections, citation list | `references/reporte-contenido.md` |
+| Report visual design (palette, cover, header/footer, boxes, tables) and the full HTML/CSS skeleton | `references/reporte-diseno.md` |
 
 ## Quick reference
 
