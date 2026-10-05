@@ -1,6 +1,6 @@
 ---
 name: testing-and-continuous-delivery
-description: Use when designing test cases or a test strategy, picking a test level or type, applying ISTQB terms (error/defect/failure, equivalence partitioning, boundary values, decision tables, state transitions, statement/branch coverage), planning smoke/sanity/regression runs, judging flaky tests or suite speed, or working on CI/CD pipelines, quality gates, DORA metrics, deployment strategies, trunk-based development, or linting policy. Whenever it is applied to concrete code, a feature or a spec, it always delivers two things: the implemented and executed tests, and a PDF test report (HTML + Chrome, no LaTeX) that justifies each technique with ISTQB citations. Reference content is in Spanish.
+description: Use when designing test cases or a test strategy, picking a test level or type, applying ISTQB terms (error/defect/failure, equivalence partitioning, boundary values, decision tables, state transitions, statement/branch coverage), planning smoke/sanity/regression runs, judging flaky tests or suite speed, or working on CI/CD pipelines, quality gates, DORA metrics, deployment strategies, trunk-based development, or linting policy. Whenever it is applied to concrete code, a feature or a spec, it always delivers two things, the implemented and executed tests, and a PDF test report (HTML + Chrome, no LaTeX) that justifies each technique with ISTQB citations. Reference content is in Spanish.
 ---
 
 # Testing and Continuous Delivery
