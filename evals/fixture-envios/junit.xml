@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="9" time="0.030" timestamp="2026-10-05T13:57:15.910420-06:00" hostname="Daniels-MacBook-Pro.local"><testcase classname="tests.test_envios" name="test_costo_por_peso[EP-01-negativo]" time="0.001" /><testcase classname="tests.test_envios" name="test_costo_por_peso[EP-02-tramo-base]" time="0.000" /><testcase classname="tests.test_envios" name="test_costo_por_peso[EP-03-tramo-adicional]" time="0.000" /><testcase classname="tests.test_envios" name="test_costo_por_peso[EP-04-mayor-30]" time="0.000" /><testcase classname="tests.test_envios" name="test_costo_por_peso[BVA-01-peso-4.9]" time="0.000" /><testcase classname="tests.test_envios" name="test_costo_por_peso[BVA-02-peso-5]" time="0.000" /><testcase classname="tests.test_envios" name="test_costo_por_peso[BVA-03-peso-5.1]" time="0.000" /><testcase classname="tests.test_envios" name="test_costo_por_peso[BVA-04-peso-30]" time="0.000"><failure message="ValueError: peso fuera de rango">peso = 30, esperado = 185.0
+
+    @pytest.mark.parametrize("peso, esperado", CASOS)
+    def test_costo_por_peso(peso, esperado):
+        if esperado is None:
+            with pytest.raises(ValueError):
+                costo_envio(peso)
+        else:
+&gt;           assert costo_envio(peso) == esperado
+                   ^^^^^^^^^^^^^^^^^
+
+tests/test_envios.py:23: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+peso_kg = 30, express = False
+
+    def costo_envio(peso_kg, express=False):
+        if peso_kg &lt;= 0 or peso_kg &gt;= 30:  # defecto sembrado: la spec dice "hasta 30"
+&gt;           raise ValueError("peso fuera de rango")
+E           ValueError: peso fuera de rango
+
+src/envios.py:13: ValueError</failure></testcase><testcase classname="tests.test_envios" name="test_dt_r1_express_duplica" time="0.000" /></testsuite></testsuites>

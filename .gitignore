@@ -1,2 +1,5 @@
 .DS_Store
 .omc/
+evals/fixture-envios/reporte.html
+evals/fixture-envios/reporte.pdf
+__pycache__/

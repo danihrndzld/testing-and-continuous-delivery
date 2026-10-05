@@ -2,7 +2,7 @@
 
 Sistema de diseño del reporte que acompaña a toda prueba implementada con esta skill. Generaliza un documento formal en LaTeX (`article` 11pt A4, Helvetica, `titlesec`, `fancyhdr`, `mdframed`, `booktabs`) a **HTML + CSS impreso con Chrome headless**. Sin LaTeX. El contenido obligatorio de cada sección está en `reporte-contenido.md`; este archivo fija solo la forma.
 
-Flujo: copiar el esqueleto de la sección 8 a `reporte.html`, reemplazar los `{{MARCADORES}}`, llenar las secciones y correr `scripts/html_a_pdf.sh reporte.html`.
+Flujo: `scripts/armar_reporte.py` lee el `<style>` y el `<script>` del esqueleto de la sección 8 **directamente de este archivo**, reemplaza los `{{MARCADORES}}` del header con los datos de `reporte.json` y arma el cuerpo con los componentes de la sección 9. Cambiar el diseño = editar este archivo; el script no tiene CSS propio.
 
 ## 1. Geometría y tipografía
 
@@ -77,13 +77,13 @@ Una caja abre con una oración en negrita que resume su contenido.
 
 ## 7. Diferencias conocidas con la versión LaTeX
 
-- **Índice sin números de página.** Chrome no implementa `target-counter()`. El índice es una lista de enlaces y el PDF trae marcadores (`--generate-pdf-document-outline`) para navegar.
+- **Índice paginado en dos pasadas.** Chrome no implementa `target-counter()`. `armar_reporte.py` renderiza una vez, lee la página de cada título en los marcadores del PDF (`--generate-pdf-document-outline`) y renderiza de nuevo con `window.PAGINAS`. La primera pasada reserva el ancho con `00` para que el índice no cambie de tamaño.
 - **Header y footer con texto literal.** Las cajas de margen de `@page` no resuelven `var()`; los marcadores `{{ORG}}`, `{{TIPO_DOC}}` y `{{TITULO_CORTO}}` se reemplazan en el CSS y los colores del header van en hex.
 - **Sin partición silábica.** El texto va alineado a la izquierda (no justificado) para evitar ríos.
 
 ## 8. Esqueleto completo
 
-Copiar tal cual y reemplazar cada `{{MARCADOR}}`. Los bloques de componentes de la sección 9 se insertan dentro de `<main>`.
+Fuente única del diseño: `armar_reporte.py` extrae de aquí el bloque `<style>` y el `<script>` del índice. Sirve también para armar un HTML a mano si el script no aplica (reemplazar cada `{{MARCADOR}}` e insertar los componentes de la sección 9 dentro de `<main>`).
 
 ```html
 <!doctype html>
@@ -137,6 +137,8 @@ nav.indice ol { list-style: none; padding: 0; margin: 0; }
 nav.indice li { margin: 3pt 0; }
 nav.indice li li { margin-left: 1.6em; }
 nav.indice > ol > li > a { font-weight: bold; }
+nav.indice a { display: flex; gap: 4pt; }
+nav.indice .relleno { flex: 1; border-bottom: 1pt dotted var(--linea); margin-bottom: 4pt; }
 
 h2 { counter-increment: sec; counter-reset: sub; font-size: 14pt; color: var(--primario); margin: 20pt 0 8pt; padding-bottom: 3pt; border-bottom: 2pt solid var(--acento); break-after: avoid; }
 h2::before { content: counter(sec) ".\00a0\00a0"; }
@@ -210,9 +212,20 @@ tr.mal td { background: var(--rojo-claro) !important; }   tr.mal td:first-child 
 </section>
 
 <script>
-/* Índice generado desde los h2/h3 para que nunca se desfase de la numeración CSS. Chrome lo ejecuta antes de imprimir. */
+/* Índice generado desde los h2/h3 para que nunca se desfase de la numeración CSS. Chrome lo ejecuta antes de imprimir.
+   window.PAGINAS (opcional) trae el número de página de cada título en el mismo orden; lo inyecta armar_reporte.py. */
 (() => {
-  const toc = document.getElementById('indice'); let n = 0, k = 0, ap = false, sub = null;
+  const toc = document.getElementById('indice'), pags = window.PAGINAS || null;
+  let n = 0, k = 0, j = 0, ap = false, sub = null;
+  const enlace = (a, texto) => {
+    const t = document.createElement('span'); t.textContent = texto; a.append(t);
+    if (pags) {
+      const r = document.createElement('span'); r.className = 'relleno';
+      const p = document.createElement('span'); p.textContent = pags[j] ?? '';
+      a.append(r, p);
+    }
+    j++;
+  };
   document.querySelectorAll('main h2, main h3, .apendices h2').forEach((h, i) => {
     if (!h.id) h.id = 'sec-' + i;
     if (h.closest('.apendices') && !ap) { ap = true; n = 0; }
@@ -220,10 +233,10 @@ tr.mal td { background: var(--rojo-claro) !important; }   tr.mal td:first-child 
     a.href = '#' + h.id;
     if (h.tagName === 'H2') {
       n++; k = 0;
-      a.textContent = (ap ? String.fromCharCode(64 + n) : n) + '. ' + h.textContent;
+      enlace(a, (ap ? String.fromCharCode(64 + n) : n) + '. ' + h.textContent);
       li.append(a); toc.append(li); sub = document.createElement('ol'); li.append(sub);
     } else {
-      k++; a.textContent = n + '.' + k + ' ' + h.textContent; li.append(a); sub.append(li);
+      k++; enlace(a, n + '.' + k + ' ' + h.textContent); li.append(a); sub.append(li);
     }
   });
 })();
@@ -288,6 +301,8 @@ tr.mal td { background: var(--rojo-claro) !important; }   tr.mal td:first-child 
 **Cita en el texto:** `[n, §x.y.z]` con `n` = número en la lista de referencias del apéndice. Solo se cita sección cuando está verificada en `reporte-contenido.md`.
 
 ## 10. Render
+
+`armar_reporte.py` llama a `scripts/html_a_pdf.sh` dos veces (índice paginado). Para un HTML armado a mano:
 
 ```bash
 bash <ruta-de-la-skill>/scripts/html_a_pdf.sh reportes-pruebas/AAAA-MM-DD-<objeto>/reporte.html

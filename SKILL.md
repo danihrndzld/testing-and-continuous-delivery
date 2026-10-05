@@ -12,9 +12,18 @@ Reference base covering ISTQB testing theory and continuous delivery practice, f
 When the skill is applied to a concrete scenario (code, function, endpoint, user story, spec), the deliverable is **always both**:
 
 1. **Implemented tests, executed**, in the project's own framework. Every test carries a technique ID (`EP-01`, `BVA-03`, `DT-R2`, `ST-T4`…) in its name.
-2. **A PDF report** at `reportes-pruebas/YYYY-MM-DD-<object>/reporte.{html,pdf}`: why each technique was chosen for *this* scenario, the derivation tables, traceability ID → `file:line`, the literal runner output, coverage, defects and residual risk, citing ISTQB CTFL v4.0.1 by section and the et al. sources.
+2. **A PDF report** at `reportes-pruebas/YYYY-MM-DD-<object>/`: why each technique was chosen for *this* scenario, derivation tables, traceability ID → `file:line`, results, coverage, defects and residual risk, citing ISTQB CTFL v4.0.1 by section and the et al. sources. Full report (one 5-part subsection per technique) when any condition is high risk; short 3-6 page report otherwise.
 
-Steps: read `references/reporte-contenido.md` (workflow, selection matrix, mandatory sections, verified citations) → write and run the tests → copy the skeleton from `references/reporte-diseno.md` into `reporte.html` and fill it → `bash scripts/html_a_pdf.sh <path>/reporte.html` → check `pdfinfo` and look at the cover, one table and one box. Failing tests that expose a defect stay failing and go in the report's defects section.
+Steps (details in `references/reporte-contenido.md`):
+
+1. Decide the **oracle** first: expected results come from a spec, from the user, or from declared assumptions — never from the code under test. No spec → ask the user for the expected results of high-risk conditions.
+2. Rate product risk, pick techniques with the selection matrix, write the tests with IDs.
+3. Run them emitting **JUnit XML + JSON coverage** into the report folder (`--junitxml`, `--cov-report=json`, or the Jest/Vitest equivalents).
+4. Write `reporte.json` (your judgment only: risks, why each technique, derivations, defects; schema in §5).
+5. `uv run <skill-dir>/scripts/armar_reporte.py <dir>/reporte.json --junit <dir>/junit.xml --cobertura <dir>/coverage.json --raiz .` — validates traceability (every test has an ID, every ID exists in JUnit and at its `file:line`, every failure is a documented defect), takes counts and coverage from the artifacts, numbers citations, and renders the PDF with a page-numbered index. Fix whatever it lists and rerun. `<skill-dir>` is the absolute path of the folder holding this SKILL.md; run from the tested project's root.
+6. Look at pages 1-2 as PNG (`pdftoppm`).
+
+Failing tests that expose a defect stay failing and go in `defectos`.
 
 Pure concept questions (no scenario) get a direct answer from the references below.
 
@@ -34,8 +43,8 @@ Load only the file you need.
 | Single source of truth, config as code, secrets, trunk-based development, SLSA, SemVer and pinning, DORA metrics, code freeze, rollback, blue-green and canary | `references/entrega-continua.md` |
 | Universal task list, greenfield vs legacy starter packs, task boundaries, when bash falls short, errors/speed/signal triage, `finally`, sharding, parameterized pipelines | `references/diseno-de-pipelines.md` |
 | Sources for any claim above | `references/bibliografia.md` |
-| Report workflow, technique-selection matrix with verified CTFL v4.0.1 sections, mandatory report sections, citation list | `references/reporte-contenido.md` |
-| Report visual design (palette, cover, header/footer, boxes, tables) and the full HTML/CSS skeleton | `references/reporte-diseno.md` |
+| Report workflow, oracle rule, technique-selection matrix with verified CTFL v4.0.1 sections, report sections, `reporte.json` schema, citation keys | `references/reporte-contenido.md` |
+| Report visual design (palette, cover, header/footer, boxes, tables) and the HTML/CSS skeleton the build script reads | `references/reporte-diseno.md` |
 
 ## Quick reference
 

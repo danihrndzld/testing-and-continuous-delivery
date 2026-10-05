@@ -20,10 +20,10 @@ if [ -z "$chrome" ]; then
 fi
 [ -n "$chrome" ] || { echo "No encontré Chrome/Chromium/Edge/Brave. Instala uno o exporta CHROME=/ruta/al/binario." >&2; exit 1; }
 
-abs="$(cd "$(dirname "$in")" && pwd)/$(basename "$in")"
+uri="$(python3 -c 'import pathlib,sys;print(pathlib.Path(sys.argv[1]).resolve().as_uri())' "$in")"
 rm -f "$out"
 "$chrome" --headless=new --disable-gpu --no-pdf-header-footer \
-  --generate-pdf-document-outline --print-to-pdf="$out" "file://$abs" 2>/dev/null || true
+  --generate-pdf-document-outline --print-to-pdf="$out" "$uri" 2>/dev/null || true
 
 [ -s "$out" ] || { echo "Chrome no generó $out" >&2; exit 1; }
 echo "$out"

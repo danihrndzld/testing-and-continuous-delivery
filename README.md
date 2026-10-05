@@ -4,7 +4,7 @@ A [Claude Code skill](https://docs.claude.com/en/docs/claude-code/skills) coveri
 
 Claude loads it when you're designing test cases or a test strategy, picking a test level or type, applying ISTQB terms (error/defect/failure, equivalence partitioning, boundary values, decision tables, state transitions, statement/branch coverage), planning smoke/sanity/regression runs, judging flaky tests or suite speed, or working on CI/CD pipelines, quality gates, DORA metrics, deployment strategies, trunk-based development, or linting policy.
 
-Applied to concrete code or a spec, it always delivers the implemented, executed tests **and** a PDF test report that justifies every technique with ISTQB CTFL v4.0.1 citations. The PDF is rendered from HTML with headless Chrome (Chrome, Chromium, Edge or Brave must be installed; set `CHROME=/path` otherwise). No LaTeX needed.
+Applied to concrete code or a spec, it always delivers the implemented, executed tests **and** a PDF test report that justifies every technique with ISTQB CTFL v4.0.1 citations. The PDF is rendered from HTML with headless Chrome (Chrome, Chromium, Edge or Brave must be installed; set `CHROME=/path` otherwise) by a script run with [`uv`](https://docs.astral.sh/uv/). No LaTeX needed.
 
 Reference content in `references/` is in Spanish.
 
@@ -46,6 +46,8 @@ Restart Claude Code and it picks up the skill automatically.
 | `references/bibliografia.md` | Sources for every claim above |
 | `references/reporte-contenido.md` | Report workflow, technique-selection matrix (verified CTFL v4.0.1 sections), mandatory sections, citation list |
 | `references/reporte-diseno.md` | Report design system and full HTML/CSS skeleton |
-| `scripts/html_a_pdf.sh` | Renders `reporte.html` to PDF with headless Chrome |
+| `scripts/armar_reporte.py` | Builds the report from `reporte.json` + JUnit XML + coverage JSON: validates traceability, numbers citations, renders the PDF with a page-numbered index (run with `uv run`) |
+| `scripts/html_a_pdf.sh` | Renders an HTML file to PDF with headless Chrome |
+| `evals/` | Regression tests for the build script (`uv run --no-project --with pytest --with pypdf pytest evals/test_armar_reporte.py`) and an agent eval (`evals/README.md`) |
 
 `SKILL.md` holds the routing table Claude uses to pick which file to load.

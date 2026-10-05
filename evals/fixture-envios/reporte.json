@@ -1,0 +1,82 @@
+{
+  "portada": {
+    "org": "fixture-envios", "area": "Aseguramiento de calidad", "tipo_doc": "Reporte de Pruebas",
+    "objeto": "costo_envio", "objeto_detalle": "src/envios.py — costo_envio()",
+    "version": "fixture", "titulo_corto": "costo_envio — 2026",
+    "subtitulo": ["BVA expuso un defecto en la frontera de 30 kg", "Fixture de regresión de la skill"],
+    "fecha": "5 de octubre de 2026"
+  },
+  "ficha": [
+    ["Objeto de prueba", "<code>src/envios.py</code> — <code>costo_envio(peso_kg, express)</code>"],
+    ["Nivel / tipo", "Componente — funcional, caja negra"],
+    ["Autor", "fixture"]
+  ],
+  "base_de_prueba": {"tipo": "spec", "fuente": "Historia US-310 en el docstring de <code>src/envios.py:1-7</code>"},
+  "resumen": "<p>Se diseñaron 9 casos con 3 técnicas sobre una función de 7 líneas. BVA-04 falla: <code>costo_envio(30)</code> lanza ValueError aunque la spec admite hasta 30 kg.</p>",
+  "objeto": "<p><code>costo_envio</code> cobra Q35 hasta 5 kg y Q6 por kg adicional; express duplica. Los esperados salen del docstring (US-310).</p>",
+  "riesgos": [
+    {"id": "C1", "condicion": "Rango válido 0 &lt; peso ≤ 30 (<code>envios.py:12</code>)", "riesgo": "Rechazar un envío válido", "prob": 2, "impacto": 3, "exige": "EP + BVA 100%"},
+    {"id": "C2", "condicion": "Tramo de 5 kg (<code>envios.py:14</code>)", "riesgo": "Cobro incorrecto", "prob": 2, "impacto": 3, "exige": "BVA 100%"},
+    {"id": "C3", "condicion": "Express duplica (<code>envios.py:18</code>)", "riesgo": "Cobro incorrecto", "prob": 1, "impacto": 2, "exige": "DT, regla express"}
+  ],
+  "estrategia": "<p>Pruebas de componente [ctfl, §2.2.1] en la base de la pirámide [ctfl, §5.1.6].</p>",
+  "criterios_salida": ["100% de particiones EP", "100% de fronteras BVA", "0 defectos de severidad alta abiertos"],
+  "tecnicas": [
+    {
+      "nombre": "Equivalence Partitioning", "condiciones": ["C1", "C2"],
+      "definicion": "<p><b>Divide los datos en particiones que el objeto procesa igual; un valor por partición basta</b> [ctfl, §4.2.1].</p>",
+      "por_que": "<p><b>La spec define 2 tramos válidos y 2 rangos inválidos de <code>peso_kg</code>.</b></p>",
+      "derivacion": "<p>Particiones: peso ≤ 0, 0-5, 5-30, &gt; 30.</p>",
+      "casos": [
+        {"id": "EP-01", "entrada": "-1", "esperado": "ValueError", "ubicacion": "tests/test_envios.py:6"},
+        {"id": "EP-02", "entrada": "3", "esperado": "Q35", "ubicacion": "tests/test_envios.py:7"},
+        {"id": "EP-03", "entrada": "12", "esperado": "Q77", "ubicacion": "tests/test_envios.py:8"},
+        {"id": "EP-04", "entrada": "40", "esperado": "ValueError", "ubicacion": "tests/test_envios.py:9"}
+      ],
+      "cobertura": "<p>4 de 4 particiones = 100%.</p>",
+      "limites": "<p>Un valor por partición no detecta fronteras mal ubicadas.</p>"
+    },
+    {
+      "nombre": "Boundary Value Analysis", "condiciones": ["C1", "C2"],
+      "definicion": "<p><b>Ejercita los bordes de particiones ordenadas</b> [ctfl, §4.2.2]; [myers].</p>",
+      "por_que": "<p><b>Las fronteras 5 y 30 kg cambian el cobro o la validez.</b></p>",
+      "derivacion": "<p>Fronteras 5 (4.9, 5, 5.1) y 30.</p>",
+      "casos": [
+        {"id": "BVA-01", "entrada": "4.9", "esperado": "Q35", "ubicacion": "tests/test_envios.py:10"},
+        {"id": "BVA-02", "entrada": "5", "esperado": "Q35", "ubicacion": "tests/test_envios.py:11"},
+        {"id": "BVA-03", "entrada": "5.1", "esperado": "Q41", "ubicacion": "tests/test_envios.py:12"},
+        {"id": "BVA-04", "entrada": "30", "esperado": "Q185", "ubicacion": "tests/test_envios.py:13"}
+      ],
+      "cobertura": "<p>4 de 4 valores = 100%.</p>",
+      "limites": "<p>No combina la frontera con express.</p>"
+    },
+    {
+      "nombre": "Decision Table", "condiciones": ["C3"],
+      "definicion": "<p><b>Combinaciones de condiciones que producen acciones distintas</b> [ctfl, §4.2.3].</p>",
+      "por_que": "<p><b>Express modifica el resultado de cualquier tramo.</b></p>",
+      "derivacion": "<p>R1: tramo base + express.</p>",
+      "casos": [
+        {"id": "DT-R1", "entrada": "3, express", "esperado": "Q70", "ubicacion": "tests/test_envios.py:26"}
+      ],
+      "cobertura": "<p>1 de 4 reglas = 25% (fixture reducido).</p>",
+      "limites": "<p>Faltan 3 reglas.</p>"
+    }
+  ],
+  "descartadas": [
+    ["State Transition", "<code>costo_envio</code> es pura, no guarda estado"],
+    ["Pairwise", "Solo 2 parámetros; la tabla de decisión cubre todas las combinaciones [kuhn]"]
+  ],
+  "defectos": [
+    {"id": "D-01", "caso": "BVA-04", "entrada": "30", "esperado": "Q185", "obtenido": "ValueError",
+     "ubicacion": "src/envios.py:12", "severidad": "alta",
+     "analisis": "<p>Error: <code>&gt;=</code> en lugar de <code>&gt;</code>. Defecto en la línea 12. Falla: rechaza 30 kg [ctfl, §1.2.3].</p>"}
+  ],
+  "riesgo_residual": "<p>Faltan 3 reglas de la tabla de decisión.</p>",
+  "decision": {
+    "veredicto": "mal",
+    "texto": "<p><b>No liberar: D-01 de severidad alta abierto.</b></p>",
+    "semaforo": [["Liberar", "Todo pasa"], ["Liberar con condiciones", "Solo defectos bajos"], ["No liberar", "Algún defecto alto"]]
+  },
+  "entorno": {"comando": "uv run pytest --junitxml=junit.xml --cov=src --cov-branch --cov-report=json:coverage.json", "versiones": "Python 3.13, pytest 9"},
+  "reproduccion": ["uv run --no-project --with pytest --with pytest-cov pytest --junitxml=junit.xml --cov=src --cov-branch --cov-report=json:coverage.json", "uv run ../../scripts/armar_reporte.py reporte.json --junit junit.xml --cobertura coverage.json --raiz ."]
+}
